@@ -4,22 +4,30 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createIssueSchema } from "@/app/validationSchema";
+import { z } from "zod";
 
-interface IssueForm {
-  title: string;
-  description: string;
-}
+type IssueForm = z.infer<typeof createIssueSchema>;
 
 const NewIssuePage = () => {
   const router = useRouter();
-  const { register, handleSubmit } = useForm<IssueForm>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IssueForm>({
+    resolver: zodResolver(createIssueSchema),
+  });
   const [error, setError] = useState<string>("");
 
   return (
     <div className="max-w-xl space-y-4 mx-auto my-10">
-      {error && <Callout.Root color="red" role="alert" size={"1"}>
-        <Callout.Text>{error}</Callout.Text>
-        </Callout.Root>}
+      {error && (
+        <Callout.Root color="red" role="alert" size={"1"}>
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
+      )}
       <form
         className="space-y-4"
         onSubmit={handleSubmit(async (data) => {
@@ -38,6 +46,7 @@ const NewIssuePage = () => {
           variant="soft"
           {...register("title")}
         />
+        {errors.title && <p className="text-red-600">{errors.title.message}</p>}
         <TextArea
           className="h-80"
           size={"3"}
@@ -46,6 +55,7 @@ const NewIssuePage = () => {
           color="yellow"
           {...register("description")}
         />
+        {errors.description && <p className="text-red-600">{errors.description.message}</p>}
         <Button
           type="submit"
           variant="soft"
