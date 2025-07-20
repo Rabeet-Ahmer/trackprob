@@ -1,5 +1,5 @@
 "use client";
-import { Button, Callout, TextArea, TextField } from "@radix-ui/themes";
+import { Button, Callout, Spinner, TextArea, TextField } from "@radix-ui/themes";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -12,13 +12,7 @@ type IssueForm = z.infer<typeof createIssueSchema>;
 
 const NewIssuePage = () => {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IssueForm>({
-    resolver: zodResolver(createIssueSchema),
-  });
+  const {register, handleSubmit, formState: { errors, isSubmitting },} = useForm<IssueForm>({resolver: zodResolver(createIssueSchema),});
   const [error, setError] = useState<string>("");
 
   return (
@@ -64,6 +58,7 @@ const NewIssuePage = () => {
           radius="full"
         >
           Submit New Issue
+          <Spinner size={"3"} loading={isSubmitting && true}/>
         </Button>
       </form>
     </div>
