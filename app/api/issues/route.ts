@@ -7,15 +7,26 @@ const createIssueSchema = z.object({
   description: z.string().min(1),
 });
 
-
 export const POST = async (request: NextRequest) => {
   const body = await request.json();
   const validation = createIssueSchema.safeParse(body);
+
   if (!validation.success)
     return NextResponse.json(validation.error, { status: 400 });
 
-  const newIssue = await prisma.issue.create({
-    data: { title: body.title, description: body.description },
-  });
-  return NextResponse.json(newIssue, { status: 201 });
+  try {
+    const newIssue = await prisma.issue.create({
+      data: {
+        title: validation.data.title,
+        description: validation.data.description,
+      },
+    });
+    return NextResponse.json(newIssue, { status: 201 });
+  } catch (error) {
+    console.error("Database error:", error);
+    return NextResponse.json(
+      { error: "Failed to create issue" },
+      { status: 500 }
+    );
+  }
 };
